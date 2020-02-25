@@ -1,0 +1,4 @@
+# Project exclude paths
+/target/
+co2-info.iml
+/.idea
