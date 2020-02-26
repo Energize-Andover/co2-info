@@ -87,13 +87,6 @@ public class CO2Info {
 
                 meterDatabase.addAll(localDateTime, ppmEntries);
             }
-        } catch (FileNotFoundException e) {
-            System.out.println("The file could not be found!");
-            System.exit(-1);
-        } catch (IOException | CsvException e) {
-            System.out.println("An exception occurred when reading the csv file!");
-            e.printStackTrace();
-            System.exit(-2);
         }
     }
 
