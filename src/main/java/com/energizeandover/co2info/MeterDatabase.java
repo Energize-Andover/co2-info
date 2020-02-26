@@ -33,24 +33,6 @@ public class MeterDatabase extends ArrayList<MeterData> {
         }
     }
 
-    ArrayList<String> findBrokenReadings() {
-        ArrayList<String> brokenReadings = new ArrayList<>();
-
-        for (MeterData meterData : this) {
-            brokenReadings.add(meterData.toStringBrokenReadings());
-        }
-        return brokenReadings;
-    }
-
-    ArrayList<String> findUnhealthyReadings() {
-        ArrayList<String> unhealthyReadings = new ArrayList<>();
-
-        for (MeterData meterData : this) {
-            unhealthyReadings.add(meterData.toStringUnhealthyReadings());
-        }
-        return unhealthyReadings;
-    }
-
     public List<MeterData> matchMeterName(String name) {
         return this.stream()
                 .filter(meterData -> meterData.getMeterName().contains(name))

@@ -7,8 +7,10 @@ import com.opencsv.exceptions.CsvValidationException;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.time.LocalDate;
@@ -29,13 +31,21 @@ public class CO2Info {
      * @param args CSV file to read from
      */
     public static void main(String[] args) {
-        scanner = new Scanner(System.in);
-        csvPath = findPath(args);
+        try {
+            scanner = new Scanner(System.in);
+            csvPath = findPath(args);
 
-        addReadings();
-        System.out.println("Successfully loaded " + meterDatabase.size() + " meters.");
+            addReadings();
 
-        showMenu();
+            System.out.println("Successfully loaded " + meterDatabase.size() + " meters.");
+            showMenu();
+        } catch (FileNotFoundException e) {
+            System.out.println("Failed to load meters: File not found.");
+        } catch (IOException e) {
+            System.out.println("Failed to load meters: An IOException occurred.");
+        } catch (CsvException e) {
+            System.out.println("Failed to load meters: An CsvException occurred.");
+        }
     }
 
     /**
@@ -44,7 +54,7 @@ public class CO2Info {
      * @param args command-line argument
      * @return file path
      */
-    private static Path findPath(String[] args) {
+    private static Path findPath(String[] args) throws FileNotFoundException {
         Path path;
 
         if (args.length > 0) {
@@ -53,17 +63,21 @@ public class CO2Info {
             System.out.print("\nEnter input file name: ");
             path = Paths.get(scanner.nextLine().trim());
         }
+
+        if (!Files.exists(path)) {
+            throw new FileNotFoundException();
+        }
         return path;
     }
 
     /**
      * Iterates through the CSV file and adds Readings to the MeterData of the MeterDatabase.
      */
-    private static void addReadings() {
+    private static void addReadings() throws IOException, CsvValidationException {
         try (CSVReader csvReader = new CSVReader(new FileReader(csvPath.toFile()))) {
             meterDatabase = initializeMeterDatabase(csvReader);
 
-            System.out.println("com.energizeandover.co2info.Reading CSV...");
+            System.out.println("Reading CSV...");
             String[] line;
             while ((line = csvReader.readNext()) != null) {
                 LocalDateTime localDateTime = parseTime(line[0]);
@@ -84,20 +98,16 @@ public class CO2Info {
     }
 
     /**
-     * Gets meter names from headers and returns a com.energizeandover.co2info.MeterDatabase from them.
+     * Gets meter names from headers and returns a MeterDatabase from them.
      *
-     * @return com.energizeandover.co2info.MeterDatabase with meters from header names (skipping temperature column)
+     * @return MeterDatabase with meters from header names (skipping temperature column)
      */
-    private static MeterDatabase initializeMeterDatabase(CSVReader csvReader) {
-        String[] meterNames = {};
-        try {
-            meterNames = csvReader.readNext();
-            System.arraycopy(meterNames, 1, meterNames, 0, meterNames.length - 1);
-        } catch (CsvValidationException | IOException e) {
-            System.out.println("An exception occurred when initializing the Meter Database!");
-            e.printStackTrace();
-            System.exit(-3);
-        }
+    private static MeterDatabase initializeMeterDatabase(CSVReader csvReader)
+            throws IOException, CsvValidationException {
+        // TODO add custom exception
+        String[] meterNames;
+        meterNames = csvReader.readNext();
+        System.arraycopy(meterNames, 1, meterNames, 0, meterNames.length - 1);
         return new MeterDatabase(meterNames);
     }
 
@@ -119,35 +129,58 @@ public class CO2Info {
      */
     private static void showMenu() {
         while (true) {
-            System.out.println("Search Database:");
-            System.out.println("1. Find all average readings");
-            System.out.println("2. Find unhealthy readings");
-            System.out.println("3. Find broken readings");
-            System.out.println("4. Find individual meter's readings");
-            System.out.println("5. Quit");
-            int choice = scanner.nextInt();
-            scanner.nextLine();
-
+            String choice = promptChoice();
             switch (choice) {
-                case 1:
+                case "1":
                     System.out.println(meterDatabase.toStringAverages());
                     break;
-                case 2:
+                case "2":
                     System.out.println("Unhealthy ppm readings:\n"
-                            + String.join("", meterDatabase.findUnhealthyReadings()));
+                            + String.join("", findUnhealthyReadings(meterDatabase)));
                     break;
-                case 3:
+                case "3":
                     System.out.println("Broken ppm readings:\n"
-                            + String.join("", meterDatabase.findBrokenReadings()));
+                            + String.join("", findBrokenReadings(meterDatabase)));
                     break;
-                case 4:
+                case "4":
                     System.out.println("Which meter?");
                     findMeters(scanner.nextLine());
                     break;
-                case 5:
+                case "5":
                     return;
+                default:
+                    System.out.println("Please enter 1, 2, 3, 4, or 5.");
             }
         }
+    }
+
+    private static String promptChoice() {
+        System.out.println("Search Database:");
+        System.out.println("1. Find all average readings");
+        System.out.println("2. Find unhealthy readings");
+        System.out.println("3. Find broken readings");
+        System.out.println("4. Find individual meter's readings");
+        System.out.println("5. Quit");
+
+        return scanner.nextLine().trim();
+    }
+
+    private static List<String> findBrokenReadings(MeterDatabase meterDatabase) {
+        List<String> brokenReadings = new ArrayList<>();
+
+        for (MeterData meterData : meterDatabase) {
+            brokenReadings.add(meterData.toStringBrokenReadings());
+        }
+        return brokenReadings;
+    }
+
+    private static List<String> findUnhealthyReadings(MeterDatabase meterDatabase) {
+        List<String> unhealthyReadings = new ArrayList<>();
+
+        for (MeterData meterData : meterDatabase) {
+            unhealthyReadings.add(meterData.toStringUnhealthyReadings());
+        }
+        return unhealthyReadings;
     }
 
     /**
