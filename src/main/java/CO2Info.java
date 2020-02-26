@@ -2,9 +2,9 @@ import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
 import com.opencsv.exceptions.CsvValidationException;
 
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 /**
- * Main class for part2. Reads CO2 data from csv and allows the user to find information.
+ * Main class for co2-info. Reads CO2 data from csv and allows the user to find information.
  */
 public class CO2Info {
     private static Scanner scanner;
@@ -22,28 +22,27 @@ public class CO2Info {
     private static Path csvPath;
 
     /**
-     * CO2Reader main method.
+     * co2-info main method.
      *
      * @param args CSV file to read from
      */
     public static void main(String[] args) {
         scanner = new Scanner(System.in);
-        csvPath = findValidPath(args);
+        csvPath = findPath(args);
 
         addReadings();
         System.out.println("Successfully loaded " + meterDatabase.size() + " meters.");
 
-//        System.out.println(meterDatabase);
         showMenu();
     }
 
     /**
-     * Returns a valid file path from command-line argument or user input.
+     * Returns a file path from command-line argument or user input.
      *
      * @param args command-line argument
-     * @return valid file path
+     * @return file path
      */
-    private static Path findValidPath(String[] args) {
+    private static Path findPath(String[] args) {
         Path path;
 
         if (args.length > 0) {
@@ -52,16 +51,11 @@ public class CO2Info {
             System.out.print("\nEnter input file name: ");
             path = Paths.get(scanner.nextLine().trim());
         }
-
-//        if (!Files.exists(path)) {
-//            System.out.print("File does not exist!");
-//            System.exit(-3);
-//        }
         return path;
     }
 
     /**
-     * Iterates through the CSV file and adds Readings to the MeterReadings of the MeterDatabase.
+     * Iterates through the CSV file and adds Readings to the MeterData of the MeterDatabase.
      */
     private static void addReadings() {
         try (CSVReader csvReader = new CSVReader(new FileReader(csvPath.toFile()))) {
@@ -77,6 +71,9 @@ public class CO2Info {
 
                 meterDatabase.addAll(localDateTime, ppmEntries);
             }
+        } catch (FileNotFoundException e) {
+            System.out.println("The file could not be found!");
+            System.exit(-1);
         } catch (IOException | CsvException e) {
             System.out.println("An exception occurred when reading the csv file!");
             e.printStackTrace();
@@ -97,7 +94,7 @@ public class CO2Info {
         } catch (CsvValidationException | IOException e) {
             System.out.println("An exception occurred when initializing the Meter Database!");
             e.printStackTrace();
-            System.exit(-1);
+            System.exit(-3);
         }
         return new MeterDatabase(meterNames);
     }
@@ -116,7 +113,7 @@ public class CO2Info {
     }
 
     /**
-     * Shows the CO2Reader menu.
+     * Shows the co2-info menu.
      */
     private static void showMenu() {
         while (true) {
@@ -151,19 +148,24 @@ public class CO2Info {
         }
     }
 
+    /**
+     * Lists the MeterData in the MeterDatabase that match the input name and lets the user view one.
+     *
+     * @param name input meter name
+     */
     private static void findMeters(String name) {
-        List<MeterReadings> meterReadingsList = meterDatabase.matchMeterName(name);
+        List<MeterData> meterDataList = meterDatabase.matchMeterName(name);
 
-        System.out.println("Found " + meterReadingsList.size() + " meters.");
+        System.out.println("Found " + meterDataList.size() + " meters.");
 
-        if(meterReadingsList.size() == 0) {
+        if (meterDataList.size() == 0) {
             return;
         }
-        for (int i = 0, size = meterReadingsList.size(); i < size; i++) {
-            System.out.println((i + 1) + ". " + meterReadingsList.get(i).getMeterName());
+        for (int i = 0, size = meterDataList.size(); i < size; i++) {
+            System.out.println((i + 1) + ". " + meterDataList.get(i).getMeterName());
         }
         int meterChoice = scanner.nextInt();
         scanner.nextLine();
-        System.out.println(meterReadingsList.get(meterChoice - 1));
+        System.out.println(meterDataList.get(meterChoice - 1));
     }
 }

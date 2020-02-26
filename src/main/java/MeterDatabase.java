@@ -6,20 +6,20 @@ import java.util.stream.Collectors;
 /**
  * Class that represents a database of multiple CO2 meters' readings.
  */
-public class MeterDatabase extends ArrayList<MeterReadings> {
+public class MeterDatabase extends ArrayList<MeterData> {
     public MeterDatabase() {
         super();
     }
 
-    public MeterDatabase(List<MeterReadings> meterReadingsList) {
-        super(meterReadingsList);
+    public MeterDatabase(List<MeterData> meterDataList) {
+        super(meterDataList);
     }
 
     public MeterDatabase(String[] meterNames) {
         super(meterNames.length);
         for (String meterName : meterNames) {
             meterName = meterName.replaceAll("\\s+CO2", "");
-            this.add(new MeterReadings(meterName));
+            this.add(new MeterData(meterName));
         }
     }
 
@@ -34,8 +34,8 @@ public class MeterDatabase extends ArrayList<MeterReadings> {
     ArrayList<String> findBrokenReadings() {
         ArrayList<String> brokenReadings = new ArrayList<>();
 
-        for (MeterReadings meterReadings : this) {
-            brokenReadings.add(meterReadings.toStringBrokenReadings());
+        for (MeterData meterData : this) {
+            brokenReadings.add(meterData.toStringBrokenReadings());
         }
         return brokenReadings;
     }
@@ -43,23 +43,23 @@ public class MeterDatabase extends ArrayList<MeterReadings> {
     ArrayList<String> findUnhealthyReadings() {
         ArrayList<String> unhealthyReadings = new ArrayList<>();
 
-        for (MeterReadings meterReadings : this) {
-            unhealthyReadings.add(meterReadings.toStringUnhealthyReadings());
+        for (MeterData meterData : this) {
+            unhealthyReadings.add(meterData.toStringUnhealthyReadings());
         }
         return unhealthyReadings;
     }
 
-    public List<MeterReadings> matchMeterName(String name) {
+    public List<MeterData> matchMeterName(String name) {
         return this.stream()
-                .filter(meterReadings -> meterReadings.getMeterName().contains(name))
+                .filter(meterData -> meterData.getMeterName().contains(name))
                 .collect(Collectors.toList());
     }
 
     public String toStringAverages() {
         StringBuilder stringBuilder = new StringBuilder("Meter Database\n");
 
-        for (MeterReadings meterReadings : this) {
-            stringBuilder.append(meterReadings.toStringAverage()).append("\n");
+        for (MeterData meterData : this) {
+            stringBuilder.append(meterData.toStringAverage()).append("\n");
         }
         return stringBuilder.toString();
     }
@@ -68,8 +68,8 @@ public class MeterDatabase extends ArrayList<MeterReadings> {
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder("Meter Database\n");
 
-        for (MeterReadings meterReadings : this) {
-            stringBuilder.append(meterReadings).append("\n");
+        for (MeterData meterData : this) {
+            stringBuilder.append(meterData).append("\n");
         }
         return stringBuilder.toString();
     }

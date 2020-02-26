@@ -4,13 +4,13 @@ import java.util.ArrayList;
 /**
  * Class that represents one CO2 meter's readings.
  */
-public class MeterReadings extends ArrayList<Reading> implements Serializable {
+public class MeterData extends ArrayList<Reading> implements Serializable {
     private String meterName;
 
-    public MeterReadings() {
+    public MeterData() {
     }
 
-    public MeterReadings(String meterName) {
+    public MeterData(String meterName) {
         super();
         this.meterName = meterName;
     }
