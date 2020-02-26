@@ -1,3 +1,4 @@
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,6 +20,14 @@ public class MeterDatabase extends ArrayList<MeterReadings> {
         for (String meterName : meterNames) {
             meterName = meterName.replaceAll("\\s+CO2", "");
             this.add(new MeterReadings(meterName));
+        }
+    }
+
+    public void addAll(LocalDateTime localDateTime, String[] ppmEntries) {
+        for (int i = 0, length = ppmEntries.length; i < length; i++) {
+            if (!ppmEntries[i].equals("")) {
+                get(i).add(new Reading(localDateTime, Double.parseDouble(ppmEntries[i])));
+            }
         }
     }
 

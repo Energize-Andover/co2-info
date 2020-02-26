@@ -44,24 +44,20 @@ public class CO2Info {
      * @return valid file path
      */
     private static Path findValidPath(String[] args) {
-        boolean validArg = true;
         Path path;
 
-        while (true) {
-            if (validArg && args.length > 0) {
-                path = Paths.get(args[0]);
-            } else {
-                System.out.print("\nEnter input file name: ");
-                path = Paths.get(scanner.nextLine().trim());
-            }
-
-            if (Files.exists(path)) {
-                return path;
-            } else {
-                System.out.print("File does not exist!");
-                validArg = false;
-            }
+        if (args.length > 0) {
+            path = Paths.get(args[0]);
+        } else {
+            System.out.print("\nEnter input file name: ");
+            path = Paths.get(scanner.nextLine().trim());
         }
+
+//        if (!Files.exists(path)) {
+//            System.out.print("File does not exist!");
+//            System.exit(-3);
+//        }
+        return path;
     }
 
     /**
@@ -79,11 +75,7 @@ public class CO2Info {
                 String[] ppmEntries = new String[line.length - 1];
                 System.arraycopy(line, 1, ppmEntries, 0, ppmEntries.length);
 
-                for (int i = 0, length = ppmEntries.length; i < length; i++) {
-                    if (!ppmEntries[i].equals("")) {
-                        meterDatabase.get(i).add(new Reading(localDateTime, Double.parseDouble(ppmEntries[i])));
-                    }
-                }
+                meterDatabase.addAll(localDateTime, ppmEntries);
             }
         } catch (IOException | CsvException e) {
             System.out.println("An exception occurred when reading the csv file!");
@@ -151,25 +143,27 @@ public class CO2Info {
                     break;
                 case 4:
                     System.out.println("Which meter?");
-                    String answer = scanner.nextLine();
-                    List<MeterReadings> meterReadingsList = meterDatabase.matchMeterName(answer);
-
-                    if (meterReadingsList.size() > 0) {
-                        System.out.println("Found " + meterReadingsList.size() + " meters.");
-                        for (int i = 0, size = meterReadingsList.size(); i < size; i++) {
-                            System.out.println((i + 1) + ". " + meterReadingsList.get(i).getMeterName());
-                        }
-                        int meterChoice = scanner.nextInt();
-                        scanner.nextLine();
-                        System.out.println(meterReadingsList.get(meterChoice - 1));
-                    }
-                    else {
-                        System.out.println("Meter not found!");
-                    }
+                    findMeters(scanner.nextLine());
                     break;
                 case 5:
                     return;
             }
         }
+    }
+
+    private static void findMeters(String name) {
+        List<MeterReadings> meterReadingsList = meterDatabase.matchMeterName(name);
+
+        System.out.println("Found " + meterReadingsList.size() + " meters.");
+
+        if(meterReadingsList.size() == 0) {
+            return;
+        }
+        for (int i = 0, size = meterReadingsList.size(); i < size; i++) {
+            System.out.println((i + 1) + ". " + meterReadingsList.get(i).getMeterName());
+        }
+        int meterChoice = scanner.nextInt();
+        scanner.nextLine();
+        System.out.println(meterReadingsList.get(meterChoice - 1));
     }
 }
