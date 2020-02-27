@@ -142,6 +142,7 @@ public class CO2Info {
                     return;
                 default:
                     System.out.println("Please enter 1, 2, 3, 4, or 5.");
+                    break;
             }
         }
     }
