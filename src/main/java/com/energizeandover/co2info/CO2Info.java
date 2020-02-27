@@ -37,14 +37,14 @@ public class CO2Info {
 
             addReadings();
 
-            System.out.println("Successfully loaded " + meterDatabase.size() + " meters.");
+            System.out.println("Successfully loaded " + meterDatabase.size() + " meters.\n");
             showMenu();
         } catch (FileNotFoundException e) {
             System.out.println("Failed to load meters: File not found.");
         } catch (IOException e) {
             System.out.println("Failed to load meters: An IOException occurred.");
         } catch (CsvException e) {
-            System.out.println("Failed to load meters: An CsvException occurred.");
+            System.out.println("Failed to load meters: A CsvException occurred.");
         }
     }
 
@@ -97,7 +97,6 @@ public class CO2Info {
      */
     private static MeterDatabase initializeMeterDatabase(CSVReader csvReader)
             throws IOException, CsvValidationException {
-        // TODO add custom exception
         String[] meterNames;
         meterNames = csvReader.readNext();
         System.arraycopy(meterNames, 1, meterNames, 0, meterNames.length - 1);
@@ -136,7 +135,7 @@ public class CO2Info {
                             + String.join("", findBrokenReadings(meterDatabase)));
                     break;
                 case "4":
-                    System.out.println("Which meter?");
+                    System.out.println("Enter meter name: ");
                     findMeters(scanner.nextLine());
                     break;
                 case "5":
@@ -148,7 +147,7 @@ public class CO2Info {
     }
 
     private static String promptChoice() {
-        System.out.println("Search Database:");
+        System.out.println("Search Database: ");
         System.out.println("1. Find all average readings");
         System.out.println("2. Find unhealthy readings");
         System.out.println("3. Find broken readings");
@@ -184,16 +183,23 @@ public class CO2Info {
     private static void findMeters(String name) {
         List<MeterData> meterDataList = meterDatabase.matchMeterName(name);
 
-        System.out.println("Found " + meterDataList.size() + " meters.");
-
+        System.out.println("Found " + meterDataList.size() + " meter(s) matching \"" + name + "\".");
         if (meterDataList.size() == 0) {
+            scanner.nextLine();
             return;
         }
-        for (int i = 0, size = meterDataList.size(); i < size; i++) {
-            System.out.println((i + 1) + ". " + meterDataList.get(i).getMeterName());
+
+        for (boolean printed = false; !printed;) {
+            for (int i = 0, size = meterDataList.size(); i < size; i++) {
+                System.out.println((i + 1) + ". " + meterDataList.get(i).getMeterName());
+            }
+            try {
+                int meterChoice = Integer.parseInt(scanner.nextLine().trim());
+                System.out.println(meterDataList.get(meterChoice - 1));
+                printed = true;
+            } catch (NumberFormatException | IndexOutOfBoundsException e) {
+                System.out.println("Please enter a valid number between [1, " + meterDataList.size() + "].");
+            }
         }
-        int meterChoice = scanner.nextInt();
-        scanner.nextLine();
-        System.out.println(meterDataList.get(meterChoice - 1));
     }
 }
