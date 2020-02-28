@@ -151,7 +151,7 @@ public class CO2Info {
                     break;
                 case "4":
                     System.out.println("Enter meter name: ");
-                    findMeters(scanner.nextLine());
+                    findMeter(scanner.nextLine());
                     break;
                 case "5":
                     return;
@@ -192,11 +192,11 @@ public class CO2Info {
     }
 
     /**
-     * Lists the MeterData in the MeterDatabase that match the input name and lets the user view one.
+     * Gets a list of the MeterData in the MeterDatabase that match the input name and lets the user view one.
      *
      * @param name input meter name
      */
-    private static void findMeters(String name) {
+    private static void findMeter(String name) {
         List<MeterData> meterDataList = meterDatabase.matchMeterName(name);
 
         System.out.println("Found " + meterDataList.size() + " meter(s) matching \"" + name + "\".");
@@ -205,15 +205,29 @@ public class CO2Info {
             return;
         }
 
+        selectMeter(meterDataList);
+    }
+
+    /**
+     * Prompts the user to select a MeterData from a list, then prints the selected MeterData.
+     *
+     * @param meterDataList List of MeterData
+     */
+    private static void selectMeter(List<MeterData> meterDataList) {
         for (boolean printed = false; !printed;) {
             for (int i = 0, size = meterDataList.size(); i < size; i++) {
                 System.out.println((i + 1) + ". " + meterDataList.get(i).getMeterName());
             }
+
+            int meterChoice;
             try {
-                int meterChoice = Integer.parseInt(scanner.nextLine().trim());
+                meterChoice = Integer.parseInt(scanner.nextLine().trim());
+                if (meterChoice < 1 || meterChoice > meterDataList.size()) {
+                    throw new IllegalArgumentException();
+                }
                 System.out.println(meterDataList.get(meterChoice - 1));
                 printed = true;
-            } catch (NumberFormatException | IndexOutOfBoundsException e) {
+            } catch (IllegalArgumentException e) {
                 System.out.println("Please enter a valid number between [1, " + meterDataList.size() + "].");
             }
         }
