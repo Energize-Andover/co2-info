@@ -205,28 +205,28 @@ public class CO2Info {
             return;
         }
 
-        selectMeter(meterDataList);
+        for (int i = 0, size = meterDataList.size(); i < size; i++) {
+            System.out.println((i + 1) + ". " + meterDataList.get(i).getMeterName());
+        }
+        int meterIndex = selectMeter(meterDataList);
+        System.out.println(meterDataList.get(meterIndex));
     }
 
     /**
-     * Prompts the user to select a MeterData from a list, then prints the selected MeterData.
+     * Prompts the user to select a MeterData from a list.
      *
      * @param meterDataList List of MeterData
+     * @return int representing index of selected MeterData
      */
-    private static void selectMeter(List<MeterData> meterDataList) {
-        for (boolean printed = false; !printed;) {
-            for (int i = 0, size = meterDataList.size(); i < size; i++) {
-                System.out.println((i + 1) + ". " + meterDataList.get(i).getMeterName());
-            }
-
-            int meterChoice;
+    private static int selectMeter(List<MeterData> meterDataList) {
+        int meterChoice;
+        while (true) {
             try {
                 meterChoice = Integer.parseInt(scanner.nextLine().trim());
                 if (meterChoice < 1 || meterChoice > meterDataList.size()) {
                     throw new IllegalArgumentException();
                 }
-                System.out.println(meterDataList.get(meterChoice - 1));
-                printed = true;
+                return meterChoice - 1;
             } catch (IllegalArgumentException e) {
                 System.out.println("Please enter a valid number between [1, " + meterDataList.size() + "].");
             }
