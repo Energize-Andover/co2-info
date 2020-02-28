@@ -27,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.Scanner;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -208,28 +209,37 @@ public class CO2Info {
         for (int i = 0, size = meterDataList.size(); i < size; i++) {
             System.out.println((i + 1) + ". " + meterDataList.get(i).getMeterName());
         }
-        int meterIndex = selectMeter(meterDataList);
+        int meterIndex = selectMeter(meterDataList.size());
         System.out.println(meterDataList.get(meterIndex));
     }
 
     /**
-     * Prompts the user to select a MeterData from a list.
+     * Prompts the user to select a MeterData.
      *
-     * @param meterDataList List of MeterData
+     * @param listSize size of list
      * @return int representing index of selected MeterData
      */
-    private static int selectMeter(List<MeterData> meterDataList) {
-        int meterChoice;
-        while (true) {
-            try {
-                meterChoice = Integer.parseInt(scanner.nextLine().trim());
-                if (meterChoice < 1 || meterChoice > meterDataList.size()) {
-                    throw new IllegalArgumentException();
-                }
-                return meterChoice - 1;
-            } catch (IllegalArgumentException e) {
-                System.out.println("Please enter a valid number between [1, " + meterDataList.size() + "].");
-            }
+    private static int selectMeter(int listSize) {
+        OptionalInt choice;
+        do {
+            System.out.println("Enter a number between [1, " + listSize + "]: ");
+            choice = tryParseInt(scanner.nextLine().trim());
+        } while (!choice.isPresent()
+                || (choice.getAsInt() < 1 || choice.getAsInt() > listSize));
+        return choice.getAsInt() - 1;
+    }
+
+    /**
+     * Returns an optional int that contains the parsed string, or empty if cannot be parsed.
+     *
+     * @param string string to be parsed
+     * @return optional int that contains the parsed string or empty if cannot be parsed
+     */
+    private static OptionalInt tryParseInt(String string) {
+        try {
+            return OptionalInt.of(Integer.parseInt(string));
+        } catch (NumberFormatException e) {
+            return OptionalInt.empty();
         }
     }
 }
