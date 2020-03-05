@@ -35,7 +35,6 @@ public class MeterDatabase extends ArrayList<MeterData> {
     public MeterDatabase(String[] meterNames) {
         super(meterNames.length);
         for (String meterName : meterNames) {
-            meterName = meterName.replaceAll("\\s+CO2", "");
             this.add(new MeterData(meterName));
         }
     }

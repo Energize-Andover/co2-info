@@ -16,7 +16,6 @@
 package com.energizeandover.co2info;
 
 import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvException;
 import com.opencsv.exceptions.CsvValidationException;
 
 import java.io.FileNotFoundException;
@@ -25,13 +24,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.OptionalInt;
-import java.util.Scanner;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.OptionalInt;
+import java.util.Scanner;
 
 /**
  * Main class for co2-info. Reads CO2 data from csv and allows the user to find information.
@@ -113,11 +113,26 @@ public class CO2Info {
      */
     private static MeterDatabase initializeMeterDatabase(CSVReader csvReader)
             throws IOException, CsvValidationException {
-        String[] meterNames;
-        meterNames = csvReader.readNext();
-        System.arraycopy(meterNames, 1, meterNames, 0, meterNames.length - 1);
+        String[] firstLine;
+        firstLine = csvReader.readNext();
+
+        String[] meterNames = Arrays.copyOfRange(firstLine, 1, firstLine.length);
+        meterNames = formatNames(meterNames);
         return new MeterDatabase(meterNames);
     }
+
+    /**
+     * Removes "CO2" and extra spaces from meter names.
+     *
+     * @param meterNames array containing names of meters
+     * @return array of names with "CO2" and extra spaces removed
+     */
+    private static String[] formatNames(String[] meterNames) {
+        return Arrays.stream(meterNames)
+                .map(name -> name.replaceAll("\\s+CO2", ""))
+                .toArray(String[]::new);
+    }
+
 
     /**
      * Parses a LocalDateTime from String timeEntry.
