@@ -47,24 +47,21 @@ public class CO2Info {
      * @param args CSV file to read from
      */
     public static void main(String[] args) {
-        scanner = new Scanner(System.in);
-
         try {
+            scanner = new Scanner(System.in);
             csvPath = findPath(args);
+
+            addReadings();
+
+            System.out.println("Successfully loaded " + meterDatabase.size() + " meters.\n");
+            showMenu();
         } catch (FileNotFoundException e) {
             System.out.println("Failed to load meters: File not found.");
-        }
-
-        try {
-            addReadings();
         } catch (IOException e) {
             System.out.println("Failed to load meters: An IOException occurred.");
         } catch (CsvValidationException e) {
-            System.out.println("Failed to load meters: A Csv Validation Exception occurred.");
+            System.out.println("Failed to load meters: A CsvException occurred.");
         }
-
-        System.out.println("Successfully loaded " + meterDatabase.size() + " meters.\n");
-        showMenu();
     }
 
     /**
