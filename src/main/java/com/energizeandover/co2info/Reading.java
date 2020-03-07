@@ -23,43 +23,10 @@ import java.time.format.DateTimeFormatter;
  * Class that represents one CO2 reading.
  */
 public class Reading implements Serializable {
-    public enum Warning {
-        CRITICAL {
-            @Override
-            public String toString() {
-                return "[CRITICAL]";
-            }
-        },
-        VERY_POOR {
-            @Override
-            public String toString() {
-                return "[VERY POOR]";
-            }
-        },
-        POOR() {
-            @Override
-            public String toString() {
-                return "[POOR]";
-            }
-        },
-        NORMAL() {
-            @Override
-            public String toString() {
-                return "";
-            }
-        },
-        BROKEN() {
-            @Override
-            public String toString() {
-                return "[BROKEN]";
-            }
-        }
-    }
-
     private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
     private LocalDateTime localDateTime;
     private double ppm;
-    private Warning warning;
+    private State state;
 
     public Reading() {
     }
@@ -69,15 +36,15 @@ public class Reading implements Serializable {
         this.ppm = ppm;
 
         if (ppm >= 5000) {
-            warning = Warning.CRITICAL;
+            state = State.CRITICAL;
         } else if (ppm >= 2000) {
-            warning = Warning.VERY_POOR;
+            state = State.VERY_POOR;
         } else if (ppm >= 1000) {
-            warning = Warning.POOR;
+            state = State.POOR;
         } else if (ppm == 0) {
-            warning = Warning.BROKEN;
+            state = State.BROKEN;
         } else {
-            warning = Warning.NORMAL;
+            state = State.NORMAL;
         }
     }
 
@@ -97,16 +64,35 @@ public class Reading implements Serializable {
         this.ppm = ppm;
     }
 
-    public Warning getWarning() {
-        return warning;
+    public State getState() {
+        return state;
     }
 
-    public void setWarning(Warning warning) {
-        this.warning = warning;
+    public void setState(State state) {
+        this.state = state;
     }
 
     @Override
     public String toString() {
-        return localDateTime.format(formatter) + " - " + ppm + "ppm " + warning;
+        return localDateTime.format(formatter) + " - " + ppm + "ppm " + state;
+    }
+
+    public enum State {
+        CRITICAL("[CRITICAL]"),
+        VERY_POOR("[VERY POOR]"),
+        POOR("[POOR]"),
+        NORMAL(""),
+        BROKEN("[BROKEN]");
+
+        private String warning;
+
+        State(String warning) {
+            this.warning = warning;
+        }
+
+        @Override
+        public String toString() {
+            return warning;
+        }
     }
 }
