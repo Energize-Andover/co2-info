@@ -38,7 +38,7 @@
                             <archive>
                                 <manifest>
                                     <mainClass>
-                                        com.energizeandover.co2info.CO2Info
+                                        com.energizeandover.co2info.DatabaseInfo
                                     </mainClass>
                                 </manifest>
                             </archive>
