@@ -23,13 +23,109 @@ import java.util.ArrayList;
  */
 public class MeterData extends ArrayList<Reading> implements Serializable {
     private String meterName;
+    private double readingSum;
+    private double readingAverage;
 
     public MeterData() {
+        super();
+        readingAverage = 0;
     }
 
     public MeterData(String meterName) {
         super();
         this.meterName = meterName;
+        readingAverage = 0;
+    }
+
+    private void updateData(double value) {
+        readingSum += value;
+        readingAverage = readingSum / size();
+    }
+
+    /**
+     * Appends the specified reading to the end of this list.
+     *
+     * @param reading reading to be appended to this list
+     * @return <tt>true</tt>
+     */
+    @Override
+    public boolean add(Reading reading) {
+        boolean result = super.add(reading);
+        updateData(reading.getPpm());
+
+        return result;
+    }
+
+    /**
+     * Inserts the specified reading at the specified position in this
+     * list. Shifts the reading currently at that position (if any) and
+     * any subsequent elements to the right (adds one to their indices).
+     *
+     * @param index   index at which the specified reading is to be inserted
+     * @param reading reading to be inserted
+     * @throws IndexOutOfBoundsException {@inheritDoc}
+     */
+    @Override
+    public void add(int index, Reading reading) {
+        super.add(index, reading);
+
+        updateData(reading.getPpm());
+    }
+
+    /**
+     * Replaces the reading at the specified position in this list with
+     * the specified reading.
+     *
+     * @param index   index of the reading to replace
+     * @param reading reading to be stored at the specified position
+     * @return the reading previously at the specified position
+     * @throws IndexOutOfBoundsException {@inheritDoc}
+     */
+    @Override
+    public Reading set(int index, Reading reading) {
+        updateData(-1 * get(index).getPpm());
+        Reading result = super.set(index, reading);
+
+        updateData(reading.getPpm());
+        return result;
+    }
+
+    /**
+     * Removes the element at the specified position in this list.
+     * Shifts any subsequent elements to the left (subtracts one from their
+     * indices).
+     *
+     * @param index the index of the element to be removed
+     * @return the element that was removed from the list
+     * @throws IndexOutOfBoundsException {@inheritDoc}
+     */
+    @Override
+    public Reading remove(int index) {
+        Reading result = super.remove(index);
+
+        updateData(-1 * get(index).getPpm());
+        return result;
+    }
+
+    /**
+     * Removes the first occurrence of the specified element from this list,
+     * if it is present.  If the list does not contain the element, it is
+     * unchanged.  More formally, removes the element with the lowest index
+     * <tt>i</tt> such that
+     * <tt>(o==null&nbsp;?&nbsp;get(i)==null&nbsp;:&nbsp;o.equals(get(i)))</tt>
+     * (if such an element exists).  Returns <tt>true</tt> if this list
+     * contained the specified element (or equivalently, if this list
+     * changed as a result of the call).
+     *
+     * @param o element to be removed from this list, if present
+     * @return <tt>true</tt> if this list contained the specified element
+     */
+    @Override
+    public boolean remove(Object o) {
+        boolean result = super.remove(o);
+        updateData(-1 * get(indexOf(o)).getPpm());
+
+        return result;
     }
 
     public String getMeterName() {
